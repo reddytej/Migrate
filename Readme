@@ -1,0 +1,211 @@
+Project Plan: Migration of Splunk Heavy Forwarders, License Master, and Deployment Server to a New AWS Account
+
+1. Executive Summary
+
+This project outlines the migration of the Splunk implementation components—heavy forwarders, license master, and deployment server—from the current AWS account to a new AWS account. The primary focus is ensuring seamless cross-account access to AWS resources (S3 and SQS) while maintaining log ingestion workflows without downtime.
+
+
+---
+
+2. Scope of Work
+
+The project involves:
+
+1. Moving 20 heavy forwarders, license master, and deployment server to the new AWS account.
+
+
+2. Reconfiguring cross-account IAM roles to allow access to S3 logs and SQS queues.
+
+
+3. Ensuring no data loss or downtime during the transition.
+
+
+4. Testing and validation of the migrated components in the new environment.
+
+
+
+
+---
+
+3. Key Components Involved
+
+Splunk License Master: Manages licenses for Splunk components.
+
+Deployment Server: Manages app configurations and deployment classes for the forwarders.
+
+Heavy Forwarders: Handle data ingestion for different log types and send them to the indexers.
+
+AWS S3 and SQS: Store logs and notifications that need to be ingested into Splunk.
+
+
+
+---
+
+4. Migration Approach and Timeline
+
+Phase 1: Pre-Migration Planning (Week 1)
+
+Resource Inventory:
+Identify all components (forwarders, deployment server, license master) that need migration.
+
+Permissions Review:
+Review the existing IAM roles and cross-account policies that allow access to S3 and SQS.
+
+AWS Account Setup:
+Ensure the new AWS account is ready with required VPC, subnets, and security configurations.
+
+IAM Role Preparation:
+Prepare cross-account IAM roles in the source AWS account to grant access to S3 buckets and SQS queues from the new AWS account.
+
+
+Deliverable: Detailed project plan and list of dependencies.
+
+
+---
+
+Phase 2: Infrastructure Setup in New AWS Account (Week 2)
+
+Deployment of Splunk Instances:
+
+Launch EC2 instances for the license master, deployment server, and heavy forwarders.
+
+Assign appropriate instance profiles and security groups to the new instances.
+
+
+Cross-Account Roles Configuration:
+
+Update source account's S3 bucket policies to allow access from the new AWS account's IAM roles.
+
+Update source account's SQS policies similarly.
+
+
+
+Example Policy for S3 Bucket Access:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::<new-account-id>:role/SplunkRole"
+      },
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::your-s3-bucket/*"]
+    }
+  ]
+}
+
+Deliverable: New Splunk infrastructure set up and ready for configuration.
+
+
+---
+
+Phase 3: Data and Configuration Migration (Week 3)
+
+Data Sync:
+
+Synchronize any stateful configurations or scripts from the old Splunk instances.
+
+Migrate deployment server apps and forwarder configurations.
+
+
+Deployment Server Sync:
+
+Copy deployment apps and server classes to the new deployment server.
+
+Ensure that heavy forwarders are correctly mapped to their respective server classes in the new environment.
+
+
+License Transfer:
+
+Migrate the license from the old Splunk license master to the new one.
+
+Validate the license master is operational.
+
+
+
+
+---
+
+Phase 4: Testing and Validation (Week 4)
+
+Connectivity Testing:
+
+Validate that the new heavy forwarders can communicate with AWS S3 and SQS using the updated cross-account roles.
+
+
+Data Flow Testing:
+
+Ensure that logs are ingested correctly by forwarding test logs from S3 to the new heavy forwarders.
+
+
+Deployment Server Validation:
+
+Verify that the deployment server can push configurations to the heavy forwarders in the new setup.
+
+
+
+Deliverable: Test results ensuring all components are functioning correctly.
+
+
+---
+
+Phase 5: Cutover and Decommissioning (Week 5)
+
+Cutover Plan:
+
+Temporarily halt log ingestion from the old forwarders.
+
+Activate the new Splunk implementation in the new AWS account.
+
+Re-point any data sources (if needed) to the new heavy forwarders.
+
+
+Monitor New Implementation:
+
+Monitor for any issues during the cutover window.
+
+Resolve any errors or misconfigurations.
+
+
+Decommission Old Instances:
+
+Decommission the old heavy forwarders, deployment server, and license master.
+
+
+
+Deliverable: Successful cutover with monitoring reports.
+
+
+---
+
+5. Risk Management
+
+
+---
+
+6. Key Considerations for Cross-Account Roles
+
+1. IAM Role Consistency: Ensure the role structure in the new AWS account mirrors the source environment.
+
+
+2. Policy Updates: All S3 buckets and SQS queues in the source account must allow the new AWS account to read and process logs.
+
+
+3. Security Monitoring: Monitor cross-account access logs to identify and resolve any permission issues post-migration.
+
+
+
+
+---
+
+7. Timeline Summary
+
+
+---
+
+8. Conclusion
+
+This project ensures a smooth transition of Splunk components (heavy forwarders, deployment server, and license master) to the new AWS account with minimal downtime. Proper planning and phased execution will minimize risks, and reconfigured cross-account roles will ensure continued access to AWS resources. Regular monitoring and testing will guarantee a successful migration.
+
